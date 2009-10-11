@@ -1,0 +1,66 @@
+EXCELlent is a custom template handler (XERB) for specifying XLS files just as regular XHTML tables.
+This is kind of limited at the moment, but damn - this is 0.0.1 alpha release :)
+
+Currently EXCELlent (or XERB) supports
+
+    * table, tr, td, th tags
+    * table name property for naming sheet
+    * font-size, font-weight and color css attributes of cells
+
+
+First things first - installation
+
+    ruby script/plugin install git://github.com/selleo/excellent.git
+
+EXCELlent relies on spreadsheet and xml-simple gems, so if you haven't already...
+
+
+    gem install spreadsheet
+    gem install xmlsimple
+
+
+Then in your controller, add new respond_to format
+
+
+    def index
+        @fruits = [{:name => "apple", :color => "green"},{:name => "peach", :color => "orange"}]
+
+        respond_to do |format|
+            format.html
+            format.xml  { render :xml => @fruits }
+            format.xls # Here it is !
+        end
+    end
+
+
+
+Then we need our view. Just create file named index.xls.xerb and create a simple table
+
+
+<table name="Fruits">
+
+    <tr>
+        <td></td>
+    </tr>
+
+    <tr>
+        <td style="font-size:20px;">Name</td>
+        <td>Color</td>
+    </tr>
+
+    <% @fruits.each do |fruit| %>
+        <tr>
+            <td style="color:red;font-weight:bold;"><%= fruit[:name] %></td>
+            <td><%= fruit[:color] %></td>
+        </tr>
+    <% end %>
+
+</table>
+
+
+
+From now on, simple link
+
+<%= link_to 'xls', fruits_path(:format => :xls) %>
+
+will enable you to download Excel version of your table :)

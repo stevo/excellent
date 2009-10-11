@@ -3,9 +3,9 @@ This is kind of limited at the moment, but damn - this is 0.0.1 alpha release :)
 
 Currently EXCELlent (or XERB) supports
 
-    * table, tr, td, th tags
-    * table name property for naming sheet
-    * font-size, font-weight and color css attributes of cells
+* table, tr, td, th tags
+* table name property for naming sheet
+* font-size, font-weight and color css attributes of cells
 
 
 First things first - installation
@@ -37,30 +37,29 @@ Then in your controller, add new respond_to format
 Then we need our view. Just create file named index.xls.xerb and create a simple table
 
 
-<table name="Fruits">
+    <table name="Fruits">
 
-    <tr>
-        <td></td>
-    </tr>
-
-    <tr>
-        <td style="font-size:20px;">Name</td>
-        <td>Color</td>
-    </tr>
-
-    <% @fruits.each do |fruit| %>
         <tr>
-            <td style="color:red;font-weight:bold;"><%= fruit[:name] %></td>
-            <td><%= fruit[:color] %></td>
+            <td></td>
         </tr>
-    <% end %>
 
-</table>
+        <tr>
+            <td style="font-size:20px;">Name</td>
+            <td>Color</td>
+        </tr>
 
+        <% @fruits.each do |fruit| %>
+            <tr>
+                <td style="color:red;font-weight:bold;"><%= fruit[:name] %></td>
+                <td><%= fruit[:color] %></td>
+            </tr>
+        <% end %>
+
+    </table>
 
 
 From now on, simple link
 
-<%= link_to 'xls', fruits_path(:format => :xls) %>
+    <%= link_to 'xls', fruits_path(:format => :xls) %>
 
 will enable you to download Excel version of your table :)

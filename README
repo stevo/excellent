@@ -16,7 +16,7 @@ EXCELlent relies on spreadsheet and xml-simple gems, so if you haven't already..
 
 
     gem install spreadsheet
-    gem install xmlsimple
+    gem install xml-simple
 
 
 Then in your controller, add new respond_to format

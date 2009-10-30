@@ -7,7 +7,6 @@ module ActionView
       include Compilable
 
       cattr_accessor :erb_trim_mode
-      self.erb_trim_mode = '-'
 
       def compile(template)
         src = %{

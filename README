@@ -10,7 +10,7 @@ Currently EXCELlent (or XERB) supports
 
 First things first - installation
 
-    ruby script/plugin install git://github.com/selleo/excellent.git
+    ruby script/plugin install git://github.com/stevo/excellent.git
 
 EXCELlent relies on spreadsheet and xml-simple gems, so if you haven't already...
 
@@ -63,3 +63,6 @@ From now on, simple link
     <%= link_to 'xls', fruits_path(:format => :xls) %>
 
 will enable you to download Excel version of your table :)
+
+
+Copyright (c) 2009 b.kosmowski@selleo.com [Stevo], released under the MIT license

@@ -5,7 +5,7 @@ Currently EXCELlent (or XERB) supports
 
 * table, tr, td, th tags
 * table name property for naming sheet
-* font-size, font-weight and color css attributes of cells
+* font-size, font-weight, background-color and color css attributes of cells
 
 
 First things first - installation
@@ -16,7 +16,7 @@ EXCELlent relies on spreadsheet and xml-simple gems, so if you haven't already..
 
 
     gem install spreadsheet
-    gem install xml-simple
+    gem install nokogiri
 
 
 Then in your controller, add new respond_to format
@@ -41,6 +41,7 @@ Then we need our view. Just create file named index.xls.xerb and create a simple
 
         <tr>
             <td></td>
+            <td></td>
         </tr>
 
         <tr>
@@ -62,6 +63,9 @@ From now on, simple link
 
     <%= link_to 'xls', fruits_path(:format => :xls) %>
 
+Styling issues:
+For unknown reason executing spreadsheet::row::set_format method on the first row and it's last cell make whole
+last column disappeared in the result file. Because of it styling in the first row is currently ignored.
 will enable you to download Excel version of your table :)
 
 

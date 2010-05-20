@@ -4,13 +4,16 @@ class XlsCellStyle
   ATTRIBUTES_MAP = {
           "font-weight" => :weight,
           "color" => :color,
-          "font-size" => :size
+          "font-size" => :size,
+          "background-color" => :pattern_fg_color
   }
 
   def initialize(style)
     return nil unless style
     @raw_style = style.gsub(' ', '')
-    @style = Spreadsheet::Format.new(style2hsh)
+    hash = style2hsh
+    hash[:pattern] = 1 if !hash[:pattern_fg_color].nil?
+    @style = Spreadsheet::Format.new(hash)
   end
 
   def style2hsh
@@ -28,6 +31,8 @@ class XlsCellStyle
         value.to_i
       when "font-weight" then
         value.to_sym
+      when "background-color" then
+        value.to_sym
     end
 
     return Hash[attr, value].map_keys(ATTRIBUTES_MAP)
@@ -40,14 +45,8 @@ class XlsCell
   attr_reader :data
 
   def initialize(cell, kind='normal')
-    if cell.is_a? Hash
-      cell.symbolize_keys!
-      @data = cell[:content] || ''
-      @style = XlsCellStyle.new(cell[:style])
-    else
-      @data = cell || ''
-      @style = nil
-    end
+    @data = cell.content || ''
+    @style = XlsCellStyle.new(cell.attributes["style"].value) if !cell.attributes["style"].nil?
   end
 
   def style
@@ -60,8 +59,8 @@ class XlsRow
   attr_reader :cells
 
   def initialize(row)
-    kind = row.keys.include?(:th) ? 'header' : 'normal'
-    @cells = row.values.sum.map{|c| XlsCell.new(c, kind)}
+    kind = !row.css('th').empty? ? 'header' : 'normal'
+    @cells = [row.css('td').map{|c| XlsCell.new(c, kind)}, row.css('th').map{|c| XlsCell.new(c, kind)}].flatten
   end
 
 end
@@ -69,42 +68,28 @@ end
 class XlsTable
   attr_reader :rows
 
-  REQUIRED_FIRST_LEVEL_KEYS = ["name", "tr"]
-
   def initialize(hsh)
     validate_hash(hsh)
-    @rows = hsh["tr"].map{|tr| XlsRow.new(tr)}
+    @rows = hsh.css("tr").map{|tr| XlsRow.new(tr)}
   end
 
   private
 
   def validate_hash(hsh)
-    raise "Table has to have 'name' attribute and a set of rows" if !(REQUIRED_FIRST_LEVEL_KEYS-hsh.keys ).empty?
-    raise "tr is to be array" unless hsh["tr"].kind_of?(Array)
+    raise "Table has to have 'name' attribute and a set of rows" if hsh.attributes["name"].nil? or hsh.css("tr").empty?
   end
 
 end
 
 class Hsh2Xls
   require 'spreadsheet'
-  require 'xmlsimple'
+  require 'nokogiri'
 
-  attr_reader :xhtml
+  attr_reader :xhtml, :hsh
 
   def initialize(xhtml)
-    @xhtml = xhtml
-    hsh = XmlSimple.xml_in(@xhtml, {'ForceArray' => true}).symbolize_keys
-    if hsh[:li]
-      @hsh = returning Array.new do |result|
-        hsh[:li].each do |li|
-          result << li["table"].first
-        end
-      end
-    else
-      hsh_new = {}
-      hsh.each_pair {|k, v| hsh_new[k.to_s] = v}
-      @hsh = [hsh_new]
-    end
+    html_doc  = Nokogiri::HTML(xhtml)
+    @hsh      = html_doc.css("table");
   end
 
   private
@@ -113,7 +98,7 @@ class Hsh2Xls
     xls = Spreadsheet::Workbook.new
 
     @hsh.each do |hsh|
-      @sheet = xls.create_worksheet :name => hsh["name"]
+      @sheet = xls.create_worksheet :name => hsh.attributes['name'].value
       xls_table = XlsTable.new(hsh)
 
       xls_table.rows.each_with_index do |row, row_idx|
@@ -129,7 +114,8 @@ class Hsh2Xls
   end
 
   def render_cell(row_idx, cell_idx, cell)
-    @sheet.row(row_idx).set_format(cell_idx, cell.style) if cell.style
+  #TODO for unknown reason last cell in first row cannot been stylee, otherwise whole column is not displayed
+  @sheet.row(row_idx).set_format(cell_idx, cell.style) if cell.style and  row_idx != 0  
     if cell.data.empty?
       @sheet[row_idx, cell_idx] = cell.data
     else

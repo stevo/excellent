@@ -12,7 +12,7 @@ First things first - installation
 
     ruby script/plugin install git://github.com/stevo/excellent.git
 
-EXCELlent relies on spreadsheet and xml-simple gems, so if you haven't already...
+EXCELlent relies on spreadsheet and nokogiri gems, so if you haven't already...
 
 
     gem install spreadsheet
@@ -63,10 +63,10 @@ From now on, simple link
 
     <%= link_to 'xls', fruits_path(:format => :xls) %>
 
+will enable you to download Excel version of your table :)
+
 Styling issues:
 For unknown reason executing spreadsheet::row::set_format method on the first row and it's last cell make whole
 last column disappeared in the result file. Because of it styling in the first row is currently ignored.
-will enable you to download Excel version of your table :)
-
 
 Copyright (c) 2009 b.kosmowski@selleo.com [Stevo], released under the MIT license
